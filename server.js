@@ -1,5 +1,5 @@
 const express = require('express');
-const mysql = require('mysql2/');
+const mysql = require('mysql2');
 const cors = require('cors');
 const multer = require('multer');
 const path = require('path');
@@ -83,16 +83,16 @@ const client =
 // 🚀 SERVER
 // ===============================
 
-app.listen(
-  3000,
-  '0.0.0.0',
-  () => {
+db.connect((err) => {
 
-    console.log(
-      '🚀 Servidor en puerto 3000'
-    );
+  if (err) {
+    console.log('❌ Error MySQL:', err);
+    return;
   }
-);
+
+  console.log('✅ Conectado a MySQL');
+
+});
 
 // ===============================
 // 👤 REGISTER

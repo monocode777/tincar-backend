@@ -3,7 +3,11 @@ const mysql = require('mysql2');
 const cors = require('cors');
 const multer = require('multer');
 const path = require('path');
+const cloudinary = require('cloudinary').v2;
 
+const {
+  CloudinaryStorage
+} = require('multer-storage-cloudinary');
 const {
   MercadoPagoConfig,
   Preference
@@ -13,7 +17,11 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
+const cloudinary = require('cloudinary').v2;
 
+const {
+  CloudinaryStorage
+} = require('multer-storage-cloudinary');
 // ===============================
 // 📸 IMÁGENES
 // ===============================
@@ -23,32 +31,28 @@ app.use(
   express.static('uploads')
 );
 
-// ===============================
-// 📸 MULTER
-// ===============================
+const storage =
+  new CloudinaryStorage({
 
-const storage = multer.diskStorage({
+    cloudinary: cloudinary,
 
-  destination: (req, file, cb) => {
-    cb(null, 'uploads/');
-  },
+    params: {
 
-  filename: (req, file, cb) => {
+      folder: 'tincar',
 
-    const uniqueName =
-      Date.now() +
-      path.extname(
-        file.originalname
-      );
+      allowed_formats: [
+        'jpg',
+        'png',
+        'jpeg'
+      ],
 
-    cb(null, uniqueName);
-  },
-});
+    },
+
+  });
 
 const upload = multer({
-  storage
+  storage: storage
 });
-
 // ===============================
 // 🛢️ MYSQL
 // ===============================
@@ -266,7 +270,7 @@ app.post(
 
     const foto =
       req.file
-        ? req.file.filename
+        ? req.file.path
         : null;
 
     const sql = `

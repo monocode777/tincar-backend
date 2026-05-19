@@ -53,15 +53,7 @@ const upload = multer({
 // 🛢️ MYSQL
 // ===============================
 
-const db = mysql.createConnection({
-
-  host: 'localhost',
-  user: 'root',
-  password: 'root',
-  database: 'tincar_db'
-
-});
-
+const db = mysql.createConnection(process.env.mysql://root:NiKvCgwfXHKBIVoBpTKbbxCjaJYwzpNg@mysql.railway.internal:3306/railway);
 db.connect((err) => {
 
   if (err) {

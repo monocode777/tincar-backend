@@ -55,10 +55,11 @@ const upload = multer({
 
 const db = mysql.createConnection({
 
-  host: 'localhost',
-  user: 'root',
-  password: 'root',
-  database: 'tincar_db'
+  host: process.env.MYSQLHOST,
+  user: process.env.MYSQLUSER,
+  password: process.env.MYSQLPASSWORD,
+  database: process.env.MYSQLDATABASE,
+  port: process.env.MYSQLPORT
 
 });
 

@@ -52,19 +52,22 @@ const upload = multer({
 // ===============================
 // 🛢️ MYSQL
 // ===============================
+const PORT = process.env.PORT || 3000;
 
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`🚀 Servidor en puerto ${PORT}`);
+});
 const db = mysql.createConnection(process.env.MYSQL_URL);
+
 db.connect((err) => {
 
   if (err) {
-
-    console.log(err);
+    console.log('❌ Error MySQL:', err);
     return;
   }
 
-  console.log(
-    '✅ Conectado a MySQL'
-  );
+  console.log('✅ Conectado a MySQL');
+
 });
 
 // ===============================
@@ -82,21 +85,7 @@ const client =
 // ===============================
 // 🚀 SERVER
 // ===============================
-const PORT = process.env.PORT || 3000;
 
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`🚀 Servidor en puerto ${PORT}`);
-});
-db.connect((err) => {
-
-  if (err) {
-    console.log('❌ Error MySQL:', err);
-    return;
-  }
-
-  console.log('✅ Conectado a MySQL');
-
-});
 
 // ===============================
 // 👤 REGISTER

@@ -3,6 +3,13 @@ const mysql = require('mysql2');
 const cors = require('cors');
 const multer = require('multer');
 const path = require('path');
+const nodemailer = require('nodemailer');
+
+const cloudinary = require('cloudinary').v2;
+
+const {
+  CloudinaryStorage
+} = require('multer-storage-cloudinary');
 
 const {
   MercadoPagoConfig,
@@ -10,39 +17,55 @@ const {
 } = require('mercadopago');
 
 const app = express();
+const cloudinary = require('cloudinary').v2;
 
+const {
+  CloudinaryStorage
+} = require('multer-storage-cloudinary');
 app.use(cors());
 app.use(express.json());
+const transporter =
+  nodemailer.createTransport({
 
+    service: 'gmail',
+
+    auth: {
+
+      user:
+        process.env.EMAIL_USER,
+
+      pass:
+        process.env.EMAIL_PASS,
+
+    },
+
+  });
 // ===============================
 // 📸 IMÁGENES
 // ===============================
+const storage =
+  new CloudinaryStorage({
 
-app.use(
-  '/uploads',
-  express.static('uploads')
-);
+    cloudinary: cloudinary,
 
-const storage = multer.diskStorage({
+    params: {
 
-  destination: (req, file, cb) => {
-    cb(null, 'uploads/');
-  },
+      folder: 'tincar',
 
-  filename: (req, file, cb) => {
+      allowed_formats: [
+        'jpg',
+        'jpeg',
+        'png'
+      ],
 
-    const uniqueName =
-      Date.now() +
-      path.extname(file.originalname);
+    },
 
-    cb(null, uniqueName);
-  },
-
-});
+  });
 
 const upload = multer({
-  storage
+  storage: storage
 });
+
 // ===============================
 // 🛢️ MYSQL
 // ===============================
@@ -72,7 +95,7 @@ const client =
   new MercadoPagoConfig({
 
     accessToken:
-      'APP_USR-1395077078735021-051718-b0ca1f3049ad0f74ad65f965fc8146ff-3406337007'
+      process.env.MP_ACCESS_TOKEN
 
   });
 
@@ -258,10 +281,10 @@ app.post(
       direccion,
     } = req.body;
 
-    const foto =
-      req.file
-        ? req.file.filename
-        : null;
+      const foto =
+        req.file
+          ? req.file.path
+          : null;
 
     const sql = `
       INSERT INTO parqueaderos

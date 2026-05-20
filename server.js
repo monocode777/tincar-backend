@@ -18,10 +18,6 @@ const {
 
 const app = express();
 
-
-const {
-  CloudinaryStorage
-} = require('multer-storage-cloudinary');
 app.use(cors());
 app.use(express.json());
 const transporter =

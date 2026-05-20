@@ -17,7 +17,7 @@ const {
 } = require('mercadopago');
 
 const app = express();
-const cloudinary = require('cloudinary').v2;
+
 
 const {
   CloudinaryStorage

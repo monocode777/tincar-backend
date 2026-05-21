@@ -871,7 +871,7 @@ app.get(
         u.email,
 
         r.usuario_id AS conductor_id
-
+        p.usuario_id AS arrendador_id
       FROM reservas r
 
       JOIN parqueaderos p

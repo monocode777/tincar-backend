@@ -1006,6 +1006,9 @@ app.get(
 // ===============================
 // 💬 ENVIAR MENSAJE
 // ===============================
+// ===============================
+// 💬 ENVIAR MENSAJE
+// ===============================
 
 app.post(
 
@@ -1013,13 +1016,10 @@ app.post(
 
   (req, res) => {
 
-    console.log("BODY:", req.body);
-
     const {
 
       reserva_id,
       emisor_id,
-      receptor_id,
       mensaje
 
     } = req.body;
@@ -1027,47 +1027,44 @@ app.post(
     if (
       !reserva_id ||
       !emisor_id ||
-      !receptor_id ||
       !mensaje
     ) {
 
       return res.status(400).json({
 
         error:
-          "Faltan datos"
+          'Faltan datos'
 
       });
 
     }
 
+    // 🔍 Buscar reserva
+
     db.query(
 
-      `INSERT INTO mensajes
-      (
-        reserva_id,
-        emisor_id,
-        receptor_id,
-        mensaje
-      )
-      VALUES (?, ?, ?, ?)`,
+      `
+      SELECT
 
-      [
+        r.usuario_id AS conductor_id,
 
-        reserva_id,
-        emisor_id,
-        receptor_id,
-        mensaje
+        p.usuario_id AS arrendador_id
 
-      ],
+      FROM reservas r
 
-      (err, result) => {
+      JOIN parqueaderos p
+      ON r.parqueadero_id = p.id
+
+      WHERE r.id = ?
+      `,
+
+      [reserva_id],
+
+      (err, results) => {
 
         if (err) {
 
-          console.log(
-            "ERROR MYSQL:",
-            err
-          );
+          console.log(err);
 
           return res
             .status(500)
@@ -1075,20 +1072,92 @@ app.post(
 
         }
 
-        res.json({
+        if (results.length === 0) {
 
-          success: true,
+          return res.status(404).json({
 
-          id:
-            result.insertId
+            error:
+              'Reserva no encontrada'
 
-        });
+          });
 
+        }
+
+        const reserva =
+          results[0];
+
+        let receptor_id;
+
+        // 🚗 Si escribe conductor
+        if (
+          emisor_id ==
+          reserva.conductor_id
+        ) {
+
+          receptor_id =
+            reserva.arrendador_id;
+
+        }
+
+        // 🏠 Si escribe arrendador
+        else {
+
+          receptor_id =
+            reserva.conductor_id;
+
+        }
+
+        // 💾 Guardar mensaje
+
+        db.query(
+
+          `
+          INSERT INTO mensajes
+          (
+            reserva_id,
+            emisor_id,
+            receptor_id,
+            mensaje
+          )
+          VALUES (?, ?, ?, ?)
+          `,
+
+          [
+
+            reserva_id,
+            emisor_id,
+            receptor_id,
+            mensaje
+
+          ],
+
+          (err, result) => {
+
+            if (err) {
+
+              console.log(err);
+
+              return res
+                .status(500)
+                .json(err);
+
+            }
+
+            res.json({
+
+              success: true,
+
+              id:
+                result.insertId
+
+            });
+
+          }
+        );
       }
     );
   }
 );
-
 // ===============================
 // 💬 OBTENER MENSAJES
 // ===============================

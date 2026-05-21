@@ -1162,6 +1162,10 @@ app.post(
 // 💬 OBTENER MENSAJES
 // ===============================
 
+// ===============================
+// 💬 OBTENER MENSAJES
+// ===============================
+
 app.get(
 
   '/mensajes/:reservaId',
@@ -1169,27 +1173,25 @@ app.get(
   (req, res) => {
 
     const reservaId =
-      req.params.reservaId;
+        req.params.reservaId;
 
     db.query(
 
       `
       SELECT
 
-        mensajes.*,
+        m.*,
 
-        usuarios.nombre
+        u.nombre
 
-      FROM mensajes
+      FROM mensajes m
 
-      INNER JOIN usuarios
+      JOIN usuarios u
+      ON m.emisor_id = u.id
 
-      ON mensajes.emisor_id =
-         usuarios.id
+      WHERE m.reserva_id = ?
 
-      WHERE reserva_id = ?
-
-      ORDER BY mensajes.fecha ASC
+      ORDER BY m.id ASC
       `,
 
       [reservaId],
@@ -1201,9 +1203,8 @@ app.get(
           console.log(err);
 
           return res
-            .status(500)
-            .json(err);
-
+              .status(500)
+              .json(err);
         }
 
         res.json(results);

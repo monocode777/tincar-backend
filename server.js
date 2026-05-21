@@ -743,7 +743,7 @@ app.get(
           p.foto,
 
           p.usuario_id AS arrendador_id,
-
+          r.usuario_id AS conductor_id,
           u.nombre
 
       FROM reservas r

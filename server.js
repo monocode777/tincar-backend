@@ -1008,16 +1008,37 @@ app.get(
 // ===============================
 
 app.post(
+
   '/mensajes',
 
   (req, res) => {
 
+    console.log("BODY:", req.body);
+
     const {
+
       reserva_id,
       emisor_id,
       receptor_id,
       mensaje
+
     } = req.body;
+
+    if (
+      !reserva_id ||
+      !emisor_id ||
+      !receptor_id ||
+      !mensaje
+    ) {
+
+      return res.status(400).json({
+
+        error:
+          "Faltan datos"
+
+      });
+
+    }
 
     db.query(
 
@@ -1031,24 +1052,38 @@ app.post(
       VALUES (?, ?, ?, ?)`,
 
       [
+
         reserva_id,
         emisor_id,
         receptor_id,
         mensaje
+
       ],
 
       (err, result) => {
 
         if (err) {
 
+          console.log(
+            "ERROR MYSQL:",
+            err
+          );
+
           return res
             .status(500)
             .json(err);
+
         }
 
         res.json({
-          success: true
+
+          success: true,
+
+          id:
+            result.insertId
+
         });
+
       }
     );
   }
@@ -1059,35 +1094,34 @@ app.post(
 // ===============================
 
 app.get(
+
   '/mensajes/:reservaId',
 
   (req, res) => {
 
-    const { reservaId } =
-      req.params;
-
-    const sql = `
-
-      SELECT
-
-        m.*,
-
-        u.nombre
-
-      FROM mensajes m
-
-      JOIN usuarios u
-      ON m.emisor_id = u.id
-
-      WHERE m.reserva_id = ?
-
-      ORDER BY m.fecha ASC
-
-    `;
+    const reservaId =
+      req.params.reservaId;
 
     db.query(
 
-      sql,
+      `
+      SELECT
+
+        mensajes.*,
+
+        usuarios.nombre
+
+      FROM mensajes
+
+      INNER JOIN usuarios
+
+      ON mensajes.emisor_id =
+         usuarios.id
+
+      WHERE reserva_id = ?
+
+      ORDER BY mensajes.fecha ASC
+      `,
 
       [reservaId],
 
@@ -1095,12 +1129,16 @@ app.get(
 
         if (err) {
 
+          console.log(err);
+
           return res
             .status(500)
             .json(err);
+
         }
 
         res.json(results);
+
       }
     );
   }
